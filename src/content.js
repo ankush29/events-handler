@@ -8,13 +8,18 @@ export default class content extends Component {
     }
   }
 
-  _handleTab = (ev) => {
+  componentDidMount () {
+    this._handleTab(null, 0)
+  }
+
+  _handleTab = (ev, defaultId) => {
     const { openTab } = this.state;
     let openTabcopy = openTab.slice();
     let openTabWidthCopy = null;
-    let currenId = Array.prototype.indexOf.call(ev.currentTarget.childNodes, ev.target)
+    let currenId = defaultId === 0 ? defaultId : Array.prototype.indexOf.call(ev.currentTarget.childNodes, ev.target)
     let filterLength =  openTabcopy.filter(x => x.id === currenId).length
-    let totalWidth = openTabcopy.length * 15
+    let totalWidth = openTabcopy.length * 15;
+    let innerText = defaultId === 0 ? 'Event Type 1' : ev.target.innerText;
     if(totalWidth > 75) {
       openTabWidthCopy = 100/(openTabcopy.length+1);
       openTabWidthCopy = openTabWidthCopy+'%'
@@ -30,7 +35,7 @@ export default class content extends Component {
     if(!filterLength) {
       let openTabData = {
         id: currenId,
-        value: ev.target.innerText,
+        value: innerText,
         width: openTabWidthCopy,
         isActive: true
       }
@@ -43,7 +48,7 @@ export default class content extends Component {
 
   }
 
-  _addActive = (item, ev) => {
+  _addActive = (item, ev, type) => {
     const { openTab } = this.state
     let openTabcopy = openTab.slice();
     console.log('this',this);
@@ -54,9 +59,12 @@ export default class content extends Component {
         ele.isActive = false
       }
     })
-    this.setState({
-      openTab: openTabcopy
-    })
+    if(type) {
+      this.setState({
+        openTab: openTabcopy
+      })
+    }
+
   }
 
   _removeCurrentItem = (item, ev) => {
@@ -85,6 +93,8 @@ export default class content extends Component {
     this.setState({
       openTab: openTabcopy
     })
+    if(openTabcopy.length)
+      this._addActive(openTabcopy[openTabcopy.length-1],null,false)
   }
 
   render () {
@@ -119,7 +129,7 @@ export default class content extends Component {
           <div className="tabs">
             {openTab.map((item) => {
               return (
-                <div className={item.isActive ? ' active tab' : 'tab'} key={item.id} style={{width: item.width}} onClick={(ev) => this._addActive(item,ev)}>
+                <div className={item.isActive ? ' active tab' : 'tab'} key={item.id} style={{width: item.width}} onClick={(ev) => this._addActive(item,ev,true)}>
                   <div className="tab-box">
                     <p>{item.value}</p>
                     <div className="overlay">
